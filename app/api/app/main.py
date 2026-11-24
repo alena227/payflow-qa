@@ -1,20 +1,32 @@
 import logging
-import os
 import time
 import uuid
+from contextlib import asynccontextmanager
 
-import psycopg
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from .db import init_db, pool
+from .external import ExternalServiceError
 from .logging_setup import request_id_var, setup_logging
+from .routers import accounts, auth, transfers
 
 setup_logging()
 log = logging.getLogger("api")
 
-DATABASE_URL = os.environ["DATABASE_URL"]
 
-app = FastAPI(title="PayFlow API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    log.info("api started")
+    yield
+    pool.close()
+
+
+app = FastAPI(title="PayFlow API", version="0.2.0", lifespan=lifespan)
+app.include_router(auth.router)
+app.include_router(accounts.router)
+app.include_router(transfers.router)
 
 
 @app.middleware("http")
@@ -43,11 +55,17 @@ async def request_id_middleware(request: Request, call_next):
     return response
 
 
+@app.exception_handler(ExternalServiceError)
+async def external_error_handler(request: Request, exc: ExternalServiceError):
+    log.error("external service error", extra={"extra_fields": {"service": exc.service, "reason": exc.reason}})
+    return JSONResponse({"detail": f"{exc.service} service {exc.reason}"}, status_code=503)
+
+
 @app.get("/health", tags=["service"])
 def health():
     """Жив ли сервис и доступна ли база."""
     try:
-        with psycopg.connect(DATABASE_URL, connect_timeout=2) as conn:
+        with pool.connection(timeout=2) as conn:
             conn.execute("SELECT 1")
         db = "ok"
     except Exception as e:  # noqa: BLE001

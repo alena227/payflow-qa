@@ -1,0 +1,8 @@
+{
+  "request": { "method": "GET", "urlPath": "/rates/USD/RUB" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "base": "USD", "quote": "RUB", "rate": "92.4750" }
+  }
+}

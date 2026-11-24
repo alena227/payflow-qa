@@ -1,0 +1,43 @@
+{
+  "mappings": [
+    {
+      "name": "antifraud: allow by default",
+      "priority": 10,
+      "request": { "method": "POST", "urlPath": "/antifraud/check" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "decision": "allow" }
+      }
+    },
+    {
+      "name": "antifraud: deny for amount_rub = 77777.00",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/antifraud/check",
+        "bodyPatterns": [{ "matchesJsonPath": { "expression": "$.amount_rub", "equalTo": "77777.00" } }]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "decision": "deny", "reason": "suspicious amount" }
+      }
+    },
+    {
+      "name": "antifraud: timeout for amount_rub = 66666.00",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/antifraud/check",
+        "bodyPatterns": [{ "matchesJsonPath": { "expression": "$.amount_rub", "equalTo": "66666.00" } }]
+      },
+      "response": {
+        "status": 200,
+        "fixedDelayMilliseconds": 5000,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "decision": "allow" }
+      }
+    }
+  ]
+}

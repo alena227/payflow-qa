@@ -18,16 +18,32 @@ services:
       retries: 20
     mem_limit: 256m
 
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    command: ["--disable-banner"]
+    environment:
+      JAVA_OPTS: "-Xmx128m"
+    ports:
+      - "8089:8080"   # на хосте 8080 часто занят, поэтому снаружи 8089
+    volumes:
+      - ./infra/wiremock:/home/wiremock
+    mem_limit: 256m
+
   api:
     build: ./app/api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-payflow}:${POSTGRES_PASSWORD:-payflow}@postgres:5432/${POSTGRES_DB:-payflow}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      RATES_URL: http://wiremock:8080
+      ANTIFRAUD_URL: http://wiremock:8080
       BUGS: ${BUGS:-0}
     ports:
       - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
+      wiremock:
+        condition: service_started
     mem_limit: 256m
 
 volumes:
