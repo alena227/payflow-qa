@@ -41,6 +41,26 @@ CREATE TABLE IF NOT EXISTS transactions (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 2FA и защита от перебора пароля (ALTER — чтобы обновить уже существующую базу)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_enabled  BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_logins INT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until  TIMESTAMPTZ;
+
+-- Уведомления пишет сервис notifier по событиям из Kafka.
+-- UNIQUE защищает от дублей, если одно и то же событие прочитано повторно.
+CREATE TABLE IF NOT EXISTS notifications (
+    id         BIGSERIAL PRIMARY KEY,
+    user_id    BIGINT NOT NULL REFERENCES users(id),
+    event_id   UUID NOT NULL,
+    tx_id      UUID NOT NULL,
+    kind       TEXT NOT NULL CHECK (kind IN ('debit', 'credit')),
+    message    TEXT NOT NULL,
+    is_read    BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (event_id, user_id, kind)
+);
+CREATE INDEX IF NOT EXISTS ix_notifications_user ON notifications (user_id, created_at);
+
 CREATE INDEX IF NOT EXISTS ix_tx_from ON transactions (from_account_id, created_at);
 CREATE INDEX IF NOT EXISTS ix_tx_to   ON transactions (to_account_id, created_at);
 

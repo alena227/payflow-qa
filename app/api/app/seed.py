@@ -1,7 +1,8 @@
 """Сброс стенда: очищает все таблицы и создает тестовых пользователей с балансами.
 
-Запуск:  docker compose exec api python -m app.seed
+Запуск:  docker compose exec api python -m app.seed   (или .\\infra\\reset.ps1)
 Пароль у всех тестовых пользователей: Passw0rd!
+У dave включена 2FA с известным секретом — код можно посчитать в тестах: pyotp.TOTP(secret).now()
 Балансы создаются через операции topup, чтобы история сходилась с балансами.
 """
 from decimal import Decimal
@@ -10,24 +11,30 @@ from .db import init_db, pool
 from .security import hash_password
 
 TEST_PASSWORD = "Passw0rd!"
+DAVE_TOTP_SECRET = "JBSWY3DPEHPK3PXP"
 TEST_USERS = {
     "alice@example.com": {"RUB": Decimal("100000.00"), "USD": Decimal("1000.00")},
     "bob@example.com": {"RUB": Decimal("50000.00"), "USD": Decimal("0")},
     "carol@example.com": {"RUB": Decimal("0"), "USD": Decimal("0")},
+    "dave@example.com": {"RUB": Decimal("10000.00"), "USD": Decimal("100.00")},
 }
+TOTP_SECRETS = {"dave@example.com": DAVE_TOTP_SECRET}
 
 
 def reset() -> None:
     init_db()
     with pool.connection() as conn:
-        conn.execute("TRUNCATE transactions, accounts, users RESTART IDENTITY CASCADE")
+        conn.execute("TRUNCATE notifications, transactions, accounts, users RESTART IDENTITY CASCADE")
     init_db()  # заново создает системного пользователя и счета комиссий
 
     pwd_hash = hash_password(TEST_PASSWORD)
     with pool.connection() as conn:
         for email, balances in TEST_USERS.items():
+            secret = TOTP_SECRETS.get(email)
             uid = conn.execute(
-                "INSERT INTO users (email, password_hash) VALUES (%s, %s) RETURNING id", (email, pwd_hash)
+                """INSERT INTO users (email, password_hash, totp_secret, totp_enabled)
+                   VALUES (%s, %s, %s, %s) RETURNING id""",
+                (email, pwd_hash, secret, secret is not None),
             ).fetchone()["id"]
             for currency, amount in balances.items():
                 acc_id = conn.execute(

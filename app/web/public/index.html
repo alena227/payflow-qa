@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PayFlow</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <span class="logo">PayFlow</span>
+    <span class="user" id="user-email" data-testid="user-email"></span>
+    <button class="link" id="logout" data-testid="logout" hidden>Выйти</button>
+  </header>
+
+  <main>
+    <section id="login-view" class="card narrow" data-testid="login-view">
+      <h1>Вход</h1>
+      <form id="login-form" data-testid="login-form" novalidate>
+        <label>Email
+          <input name="email" type="email" required autocomplete="username" data-testid="login-email">
+        </label>
+        <label>Пароль
+          <input name="password" type="password" required autocomplete="current-password" data-testid="login-password">
+        </label>
+        <label id="otp-row" hidden>Код из приложения 2FA
+          <input name="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-testid="login-otp">
+        </label>
+        <button type="submit" data-testid="login-submit">Войти</button>
+      </form>
+      <p class="error" id="login-error" role="alert" data-testid="login-error"></p>
+    </section>
+
+    <section id="app-view" hidden data-testid="app-view">
+      <div class="card">
+        <h2>Счета</h2>
+        <div id="accounts" class="accounts" data-testid="accounts"></div>
+      </div>
+
+      <div class="card">
+        <h2>Перевод</h2>
+        <form id="transfer-form" class="transfer-form" data-testid="transfer-form" novalidate>
+          <label>Со счета
+            <select name="from" data-testid="transfer-from"></select>
+          </label>
+          <label>На счет (номер)
+            <input name="to" type="number" min="1" required data-testid="transfer-to">
+          </label>
+          <label>Сумма
+            <input name="amount" inputmode="decimal" required placeholder="0.00" data-testid="transfer-amount">
+          </label>
+          <button type="submit" data-testid="transfer-submit">Перевести</button>
+        </form>
+        <p class="hint">Комиссия 1%, минимум 10 ₽, максимум 500 ₽.</p>
+        <p class="msg" id="transfer-result" role="status" data-testid="transfer-result"></p>
+      </div>
+
+      <div class="card">
+        <h2>История</h2>
+        <div class="table-wrap">
+          <table class="history" data-testid="history">
+            <thead>
+              <tr><th>Дата</th><th>Операция</th><th class="amount">Сумма</th><th class="amount">Комиссия</th></tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Уведомления</h2>
+        <ul id="notifications" class="notifications" data-testid="notifications"></ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,13 +1,17 @@
 import logging
+import os
 import time
 import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .db import init_db, pool
+from .events import get_producer
 from .external import ExternalServiceError
+from .flags import BUGS
 from .logging_setup import request_id_var, setup_logging
 from .routers import accounts, auth, transfers
 
@@ -18,12 +22,30 @@ log = logging.getLogger("api")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    log.info("api started")
+    get_producer()
+    log.info("api started", extra={"extra_fields": {"bugs": BUGS}})
     yield
+    get_producer().flush(5)
     pool.close()
 
 
-app = FastAPI(title="PayFlow API", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="PayFlow API", version="0.3.0", lifespan=lifespan)
+
+# CORS: браузер разрешит JS со страницы другого origin (web на :8090) читать ответы api (:8000)
+# только если api вернет Access-Control-Allow-Origin с этим origin.
+if BUGS:
+    app.add_middleware(CORSMiddleware, allow_origin_regex=".*", allow_credentials=True,
+                       allow_methods=["*"], allow_headers=["*"], expose_headers=["X-Request-ID"])
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:8090").split(",") if o.strip()],
+        allow_credentials=False,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
+    )
+
 app.include_router(auth.router)
 app.include_router(accounts.router)
 app.include_router(transfers.router)

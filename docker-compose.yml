@@ -18,6 +18,44 @@ services:
       retries: 20
     mem_limit: 256m
 
+  # Redpanda — брокер, совместимый с Kafka по протоколу.
+  # Внутри Docker-сети адрес redpanda:9092, с ноутбука (для тестов) — localhost:19092.
+  redpanda:
+    image: redpandadata/redpanda:v24.2.7
+    command:
+      - redpanda
+      - start
+      - --mode dev-container
+      - --smp 1
+      - --memory 400M
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --default-log-level=warn
+    ports:
+      - "19092:19092"
+    volumes:
+      - redpanda:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    mem_limit: 600m
+
+  # Одноразовый контейнер: создает топики и завершается.
+  redpanda-init:
+    image: redpandadata/redpanda:v24.2.7
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >
+        rpk topic create transactions -p 3 -X brokers=redpanda:9092 || true;
+        rpk topic create transactions.dlq -p 1 -X brokers=redpanda:9092 || true
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
   wiremock:
     image: wiremock/wiremock:3.9.1
     command: ["--disable-banner"]
@@ -36,6 +74,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
       RATES_URL: http://wiremock:8080
       ANTIFRAUD_URL: http://wiremock:8080
+      KAFKA_BOOTSTRAP: redpanda:9092
+      CORS_ORIGINS: http://localhost:8090
       BUGS: ${BUGS:-0}
     ports:
       - "8000:8000"
@@ -44,7 +84,55 @@ services:
         condition: service_healthy
       wiremock:
         condition: service_started
+      redpanda-init:
+        condition: service_completed_successfully
     mem_limit: 256m
+
+  notifier:
+    build: ./app/notifier
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-payflow}:${POSTGRES_PASSWORD:-payflow}@postgres:5432/${POSTGRES_DB:-payflow}
+      KAFKA_BOOTSTRAP: redpanda:9092
+      BUGS: ${BUGS:-0}
+    depends_on:
+      api:
+        condition: service_started
+      redpanda-init:
+        condition: service_completed_successfully
+    mem_limit: 128m
+
+  web:
+    build: ./app/web
+    environment:
+      BUGS: ${BUGS:-0}
+    ports:
+      - "8090:80"
+    depends_on:
+      - api
+    mem_limit: 64m
+
+  # ---------- профиль tools: docker compose --profile tools up -d ----------
+  dozzle:
+    image: amir20/dozzle:v8.6.1
+    profiles: ["tools"]
+    ports:
+      - "8888:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    mem_limit: 64m
+
+  redpanda-console:
+    image: redpandadata/console:v2.7.2
+    profiles: ["tools"]
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    ports:
+      - "8081:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    mem_limit: 200m
 
 volumes:
   pgdata:
+  redpanda:

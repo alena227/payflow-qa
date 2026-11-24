@@ -7,7 +7,9 @@
 - курс USD/RUB берется из сервиса курсов; RUB->USD = сумма / курс;
 - суточный лимит исходящих переводов — 300 000 RUB (в рублевом эквиваленте), сутки по UTC.
 """
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
+
+from .flags import BUGS
 
 CENT = Decimal("0.01")
 FEE_RATE = Decimal("0.01")
@@ -32,6 +34,12 @@ def from_rub(amount_rub: Decimal, currency: str, usd_rub: Decimal | None) -> Dec
 
 def calc_fee(amount: Decimal, currency: str, usd_rub: Decimal | None) -> Decimal:
     amount_rub = to_rub(amount, currency, usd_rub)
+    if BUGS:
+        fee_rub = amount_rub * FEE_RATE
+        if amount_rub > Decimal("51000"):
+            fee_rub = FEE_MAX_RUB
+        fee_rub = max(fee_rub, FEE_MIN_RUB)
+        return from_rub(fee_rub, currency, usd_rub).quantize(CENT, rounding=ROUND_DOWN)
     fee_rub = min(max(amount_rub * FEE_RATE, FEE_MIN_RUB), FEE_MAX_RUB)
     return q(from_rub(fee_rub, currency, usd_rub))
 

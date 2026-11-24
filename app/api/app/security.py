@@ -13,6 +13,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .db import pool
+from .flags import BUGS
 
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
 JWT_ALG = "HS256"
@@ -42,21 +43,27 @@ def _unauthorized(detail: str = "not authenticated") -> HTTPException:
     return HTTPException(status_code=401, detail=detail, headers={"WWW-Authenticate": "Bearer"})
 
 
+def _decode(token: str) -> dict:
+    if BUGS:
+        if jwt.get_unverified_header(token).get("alg", "").lower() == "none":
+            return jwt.decode(token, options={"verify_signature": False})
+        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG], options={"verify_exp": False})
+    # algorithms=[...] — принимаем ТОЛЬКО HS256 (защита от alg=none и подмены алгоритма)
+    return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG], options={"require": ["exp", "sub"]})
+
+
 def current_user(creds: HTTPAuthorizationCredentials | None = Depends(bearer)) -> dict:
     """Зависимость FastAPI: достает пользователя из заголовка Authorization: Bearer <token>."""
     if creds is None:
         raise _unauthorized()
     try:
-        # algorithms=[...] — принимаем ТОЛЬКО HS256 (защита от alg=none и подмены алгоритма)
-        payload = jwt.decode(
-            creds.credentials, JWT_SECRET, algorithms=[JWT_ALG], options={"require": ["exp", "sub"]}
-        )
+        payload = _decode(creds.credentials)
         user_id = int(payload["sub"])
-    except (jwt.PyJWTError, ValueError):
+    except (jwt.PyJWTError, ValueError, KeyError):
         raise _unauthorized("invalid token")
     with pool.connection() as conn:
         user = conn.execute(
-            "SELECT id, email, is_system FROM users WHERE id = %s", (user_id,)
+            "SELECT id, email, is_system, totp_enabled FROM users WHERE id = %s", (user_id,)
         ).fetchone()
     if not user or user["is_system"]:
         raise _unauthorized("invalid token")

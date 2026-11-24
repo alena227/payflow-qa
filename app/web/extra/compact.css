@@ -1,0 +1,6 @@
+
+@media (max-width: 480px) {
+  .transfer-form { min-width: 440px; }
+  .table-wrap { overflow-x: hidden; }
+  .history { min-width: 430px; }
+}

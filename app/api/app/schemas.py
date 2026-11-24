@@ -18,6 +18,25 @@ class RegisterIn(BaseModel):
 class LoginIn(BaseModel):
     email: EmailStr
     password: str
+    otp: str | None = Field(default=None, description="6-значный код 2FA, если 2FA включена")
+
+
+class OtpIn(BaseModel):
+    code: str = Field(pattern=r"^\d{6}$")
+
+
+class TotpSetupOut(BaseModel):
+    secret: str
+    otpauth_uri: str
+
+
+class NotificationOut(BaseModel):
+    id: int
+    tx_id: UUID
+    kind: str
+    message: str
+    is_read: bool
+    created_at: dt.datetime
 
 
 class TokenOut(BaseModel):
