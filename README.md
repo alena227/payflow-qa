@@ -92,3 +92,4 @@ load/        k6
 - [x] День 1: каркас, PostgreSQL, `/health`
 - [x] День 2: регистрация, JWT, счета, переводы с комиссией и конвертацией, лимит, WireMock (курсы, антифрод)
 - [x] День 3: Kafka (Redpanda), notifier + DLQ, 2FA, блокировка входа, CORS, веб-интерфейс, режим `BUGS=1`
+- [x] День 4: [требования](docs/requirements.md), [тест-план](docs/test-plan.md), [60 тест-кейсов](docs/test-cases.md) (+ импорт в Qase), [чек-лист безопасности](docs/checklists/security.md), [шаблон баг-репорта](docs/bugs/_template.md)
