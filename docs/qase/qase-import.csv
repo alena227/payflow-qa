@@ -1,4 +1,4 @@
-id,title,description,preconditions,postconditions,priority,severity,type,layer,behavior,automation,status,suite_id,suite,suite_parent_id,suite_without_cases,steps_actions,steps_results,steps_data
+id,title,description,preconditions,postconditions,priority,severity,type,layer,behavior,automation,status,suite_id,suite,suite_parent_id,suite_without_cases,steps_actions,steps_result,steps_data
 ,,,,,,,,,,,,1,Авторизация,,1,,,
 ,,,,,,,,,,,,2,2FA,,1,,,
 ,,,,,,,,,,,,3,Счета,,1,,,

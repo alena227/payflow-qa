@@ -20,7 +20,7 @@ HEADER = [
     "id", "title", "description", "preconditions", "postconditions",
     "priority", "severity", "type", "layer", "behavior", "automation", "status",
     "suite_id", "suite", "suite_parent_id", "suite_without_cases",
-    "steps_actions", "steps_results", "steps_data",
+    "steps_actions", "steps_result", "steps_data",
 ]
 
 
@@ -51,7 +51,7 @@ def build_csv():
                 "suite_id": suite_ids[tc["suite"]],
                 "suite": tc["suite"],
                 "steps_actions": numbered(a for a, _ in tc["steps"]),
-                "steps_results": numbered(r for _, r in tc["steps"]),
+                "steps_result": numbered(r for _, r in tc["steps"]),
             })
     return path
 
