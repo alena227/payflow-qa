@@ -30,10 +30,9 @@ docker compose up -d --build
 Остановить: `docker compose down`. Остановить и стереть данные: `docker compose down -v`.
 
 ### Режим со скрытыми багами
-```powershell
-$env:BUGS='1'; docker compose up -d; Remove-Item Env:BUGS
-```
-Вернуть нормальный режим: `docker compose up -d`. Список багов спрятан в `docs/.answers.md`.
+В файле `.env` поставь `BUGS=1` и выполни `docker compose up -d` (или `docker compose --profile tools up -d`).
+Вернуть нормальный режим: `BUGS=0` в `.env` и снова `docker compose up -d`. Режим хранится в `.env`, поэтому не слетает при перезапусках.
+Список багов спрятан в `docs/.answers.md`.
 
 ### Вспомогательные инструменты (профиль tools)
 ```powershell
