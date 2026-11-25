@@ -184,7 +184,7 @@
 | # | Шаг | Ожидаемый результат |
 |---|---|---|
 | 1 | dave: otp не передан | 401 otp required |
-| 2 | dave: otp = верный код из приложения (секрет JBSWY3DPEHPK3PXP) | 200, токен |
+| 2 | dave: otp = верный код из приложения (секрет JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP) | 200, токен |
 | 3 | dave: otp = 123456 (неверный) | 401 invalid otp |
 | 4 | dave: otp = "" (пустая строка) | 401 invalid otp |
 | 5 | dave: otp = null | 401 otp required |

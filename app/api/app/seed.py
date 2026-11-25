@@ -11,7 +11,7 @@ from .db import init_db, pool
 from .security import hash_password
 
 TEST_PASSWORD = "Passw0rd!"
-DAVE_TOTP_SECRET = "JBSWY3DPEHPK3PXP"
+DAVE_TOTP_SECRET = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"
 TEST_USERS = {
     "alice@example.com": {"RUB": Decimal("100000.00"), "USD": Decimal("1000.00")},
     "bob@example.com": {"RUB": Decimal("50000.00"), "USD": Decimal("0")},

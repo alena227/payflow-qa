@@ -4,7 +4,7 @@
 
 **Счета:** alice RUB **3**, USD **4** · bob RUB **5**, USD **6** · carol RUB **7**, USD **8** · dave RUB **9**, USD **10**.
 **Сброс стенда:** `.\infra\reset.ps1` (после сброса токены продолжают работать, балансы и счетчики — с нуля).
-**Код 2FA для dave:** `pip install pyotp` (один раз), затем `python -c "import pyotp; print(pyotp.TOTP('JBSWY3DPEHPK3PXP').now())"`.
+**Код 2FA для dave:** `pip install pyotp` (один раз), затем `python -c "import pyotp; print(pyotp.TOTP('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP').now())"`.
 
 🔄 — **перед кейсом сделать сброс стенда**.
 

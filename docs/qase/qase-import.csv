@@ -52,7 +52,7 @@ id,title,description,preconditions,postconditions,priority,severity,type,layer,b
 2. Вход bob без otp","1. 400 invalid otp
 2. 200 — 2FA не включилась",
 ,TC-012 Вход с включенной 2FA: таблица решений по полю otp,Требования: REQ-2FA-02,"Стенд поднят, выполнен .\infra\reset.ps1",,high,critical,security,api,positive,to-be-automated,actual,2,2FA,,,"1. dave: otp не передан
-2. dave: otp = верный код из приложения (секрет JBSWY3DPEHPK3PXP)
+2. dave: otp = верный код из приложения (секрет JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP)
 3. dave: otp = 123456 (неверный)
 4. dave: otp = """" (пустая строка)
 5. dave: otp = null","1. 401 otp required

@@ -87,7 +87,7 @@ CASES = [
     ], behavior="negative", severity="major"),
     c("TC-012", "2FA", "Вход с включенной 2FA: таблица решений по полю otp", "REQ-2FA-02", [
         ("dave: otp не передан", "401 otp required"),
-        ("dave: otp = верный код из приложения (секрет JBSWY3DPEHPK3PXP)", "200, токен"),
+        ("dave: otp = верный код из приложения (секрет JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP)", "200, токен"),
         ("dave: otp = 123456 (неверный)", "401 invalid otp"),
         ("dave: otp = \"\" (пустая строка)", "401 invalid otp"),
         ("dave: otp = null", "401 otp required"),

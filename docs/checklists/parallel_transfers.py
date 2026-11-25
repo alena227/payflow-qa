@@ -16,7 +16,7 @@ import urllib.error
 import urllib.request
 
 API = "http://localhost:8000"
-EMAIL, PASSWORD, TOTP_SECRET = "dave@example.com", "Passw0rd!", "JBSWY3DPEHPK3PXP"
+EMAIL, PASSWORD, TOTP_SECRET = "dave@example.com", "Passw0rd!", "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"
 FROM_ACC, TO_ACC, AMOUNT, N = 9, 3, "3000", 5
 
 

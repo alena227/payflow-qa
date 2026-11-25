@@ -51,7 +51,7 @@ docker compose --profile tools up -d
 | alice@example.com | 100 000.00 | 1 000.00 | |
 | bob@example.com | 50 000.00 | 0 | |
 | carol@example.com | 0 | 0 | пустые счета |
-| dave@example.com | 10 000.00 | 100.00 | 2FA включена, TOTP-секрет `JBSWY3DPEHPK3PXP` |
+| dave@example.com | 10 000.00 | 100.00 | 2FA включена, TOTP-секрет `JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP` |
 
 ### Адреса
 | Что | URL |
