@@ -86,6 +86,32 @@ def user() -> User:
     return create_user(rub="100000", usd="1000")
 
 
+@pytest.fixture
+def db():
+    """Соединение с PostgreSQL; закрывается после теста (код после yield — это «уборка»)."""
+    from helpers.db import connect
+    conn = connect()
+    yield conn
+    conn.close()
+
+
+@pytest.fixture
+def stub():
+    """Фабрика заглушек WireMock: stub("GET", "/rates/USD/RUB", status=500).
+    После теста все добавленные заглушки удаляются — даже если тест упал."""
+    from helpers.wiremock import add_stub, remove_stub
+    created: list[str] = []
+
+    def _stub(*args, **kwargs) -> str:
+        stub_id = add_stub(*args, **kwargs)
+        created.append(stub_id)
+        return stub_id
+
+    yield _stub
+    for stub_id in created:
+        remove_stub(stub_id)
+
+
 @pytest.fixture(scope="session")
 def recipient() -> User:
     """Получатель переводов. scope="session" — один на весь прогон: он только принимает деньги."""

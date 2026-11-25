@@ -32,6 +32,12 @@ tests/
     test_transfer_limits.py       суточный лимит, нехватка средств       (TC-029..032)
     test_transfer_validation.py   валидация, чужие счета                 (TC-033..035)
     test_history.py               история, пагинация                     (TC-041, 042)
+  db/test_integrity.py            SQL с CTE: балансы = история, комиссии, NUMERIC   (TC-024, 049, 050)
+  events/test_events.py           Kafka: ровно одно событие, схема, данные, DLQ, идемпотентность (TC-043..048)
+  external/test_external_services.py  WireMock: отказ/таймаут антифрода, сбои и кривые курсы (TC-037..040)
+  helpers/db.py                   подключение к PostgreSQL (localhost:5432)
+  helpers/kafka.py                TopicWatcher: «встать в конец топика» и собрать новые сообщения
+  helpers/wiremock.py             добавить/удалить заглушку через admin API
 ```
 
 ## Принципы
@@ -40,9 +46,11 @@ tests/
 - **Проверяем последствия, а не только ответ:** после перевода сверяем балансы.
 - **Обертка ничего не проверяет за тест**: `ApiClient` возвращает `Response`, все `assert` находятся в тестах.
 - Версии зависимостей зафиксированы в `requirements.txt`.
+- **Асинхронность — ожиданием с таймаутом, а не `sleep` наугад:** `wait_for(...)` опрашивает, пока условие не выполнится.
+- **Заглушки WireMock убираются за собой** (фикстура `stub`), даже если тест упал.
 
 ## Результат
 | Сборка | Результат |
 |---|---|
-| `BUGS=0` | 84 passed |
-| `BUGS=1` | 11 failed, 73 passed |
+| `BUGS=0` | 112 passed |
+| `BUGS=1` | 22 failed, 90 passed (API 11 + БД/Kafka/WireMock 11) |

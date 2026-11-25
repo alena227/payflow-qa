@@ -3,3 +3,7 @@
 pytest==8.3.4
 requests==2.32.3
 pyotp==2.9.0
+# день 6: база, Kafka, JSON-схема
+psycopg[binary]==3.2.10
+confluent-kafka==2.16.2
+jsonschema==4.23.0

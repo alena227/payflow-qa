@@ -19,7 +19,7 @@ services:
     mem_limit: 256m
 
   # Redpanda — брокер, совместимый с Kafka по протоколу.
-  # Внутри Docker-сети адрес redpanda:9092, с ноутбука (для тестов) — localhost:19092.
+  # Внутри Docker-сети адрес redpanda:9092, с ноутбука (для тестов) — 127.0.0.1:19092 (не localhost: на Windows он резолвится в IPv6 и клиенты Kafka зависают).
   redpanda:
     image: redpandadata/redpanda:v24.2.7
     command:
@@ -31,7 +31,7 @@ services:
       - --reserve-memory 0M
       - --overprovisioned
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
-      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://127.0.0.1:19092
       - --default-log-level=warn
     ports:
       - "19092:19092"

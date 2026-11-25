@@ -99,3 +99,4 @@ load/        k6
 - [x] День 3: Kafka (Redpanda), notifier + DLQ, 2FA, блокировка входа, CORS, веб-интерфейс, режим `BUGS=1`
 - [x] День 4: [требования](docs/requirements.md), [тест-план](docs/test-plan.md), [60 тест-кейсов](docs/test-cases.md) (+ импорт в Qase), [чек-лист безопасности](docs/checklists/security.md), [шаблон баг-репорта](docs/bugs/_template.md), ручной прогон и [баг-репорты](docs/bugs/README.md)
 - [x] День 5: [84 API-теста на pytest](tests/README.md): авторизация, 2FA, счета, комиссия, конвертация, лимиты, валидация, история
+- [x] День 6: SQL-проверки с CTE, тесты Kafka (ровно одно событие, схема, DLQ, идемпотентность), сбои внешних сервисов в WireMock; всего 112 тестов
