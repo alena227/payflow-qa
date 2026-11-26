@@ -9,3 +9,5 @@
 | [BUG-003](BUG-003.md) | В событии transfer.completed amount_to — число, а не строка; все события уходят в DLQ, уведомлений нет | critical | api / Kafka | TC-045 | New |
 | [BUG-004](BUG-004.md) | Событие перевода публикуется в Kafka дважды | major | api / Kafka | TC-044 | New |
 | [BUG-005](BUG-005.md) | При переводе USD→RUB зачисляется сумма, округлённая вверх; баланс расходится с историей на 0.01 | critical | api / БД | TC-049 | New |
+| [BUG-006](BUG-006.md) | CORS отражает любой Origin и разрешает credentials | critical | api | TC-054 | New |
+| [BUG-007](BUG-007.md) | IDOR: GET /accounts/{id} возвращает чужой счёт с балансом | critical | api | TC-051 | New |
