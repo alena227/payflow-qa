@@ -133,6 +133,19 @@ services:
         condition: service_healthy
     mem_limit: 200m
 
+  # ---------- профиль ci: docker compose --profile ci up -d ----------
+  # Jenkins для локального прогона Jenkinsfile (запускать по необходимости, ест ~1-1.5 ГБ).
+  jenkins:
+    image: jenkins/jenkins:2.479.1-lts-jdk17
+    profiles: ["ci"]
+    ports:
+      - "8082:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    mem_limit: 1536m
+
 volumes:
   pgdata:
   redpanda:
+  jenkins_home:

@@ -1,0 +1,88 @@
+# CI: при каждом пуше и pull request поднимаем стенд и прогоняем все тесты.
+# Два независимых job: python-тесты и java-тесты. Allure-результаты сохраняем как артефакт.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:   # можно запустить вручную из вкладки Actions
+
+jobs:
+  python-tests:
+    name: Python (API, DB, Kafka, security, UI, LLM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Поднять стенд (BUGS=0 — чистая сборка)
+        run: |
+          cp .env.example .env
+          docker compose up -d --build
+          echo "ждём готовности api..."
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/health >/dev/null; then echo "api готов"; break; fi
+            sleep 3
+          done
+          docker compose exec -T api python -m app.seed
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Установить зависимости тестов
+        run: pip install -r tests/requirements.txt
+
+      - name: Установить браузер для Playwright
+        run: python -m playwright install --with-deps chromium
+
+      - name: Прогнать тесты
+        env:
+          PAYFLOW_KAFKA: localhost:19092
+        run: pytest -v --maxfail=0
+
+      - name: Логи стенда при падении
+        if: failure()
+        run: docker compose logs --tail 100
+
+      - name: Сохранить Allure-результаты
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-python
+          path: allure-results/
+          if-no-files-found: ignore
+
+  java-tests:
+    name: Java (JUnit 5, Rest Assured, Cucumber)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Поднять стенд
+        run: |
+          cp .env.example .env
+          docker compose up -d --build
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/health >/dev/null; then break; fi
+            sleep 3
+          done
+          docker compose exec -T api python -m app.seed
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: mvn test
+        working-directory: java-tests
+        run: mvn -B test
+
+      - name: Сохранить Allure-результаты Java
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-java
+          path: java-tests/target/allure-results/
+          if-no-files-found: ignore

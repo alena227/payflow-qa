@@ -1,6 +1,12 @@
 # PayFlow QA
 
+[![tests](https://github.com/alena227/payflow-qa/actions/workflows/tests.yml/badge.svg)](https://github.com/alena227/payflow-qa/actions/workflows/tests.yml)
+
 Учебный стенд мини-кошелька. **Приложение — учебный стенд, фокус проекта на тестировании**: API, PostgreSQL, Kafka, безопасность, UI, Java-автотесты, нагрузка, логи, тестирование ИИ.
+
+**Коротко о проекте:** ~120 автотестов на Python (API, SQL с CTE, Kafka, WireMock, security, Playwright, LLM) и 31 на Java (JUnit 5, Rest Assured, Cucumber), 60 тест-кейсов в Qase, 12 найденных дефектов, нагрузочное тестирование в k6, CI в GitHub Actions и Jenkins, отчёты в Allure.
+
+📋 [Итоговый отчёт о тестировании](docs/test-report.md) · 🐞 [Баг-репорты](docs/bugs/README.md) · 🔒 [Отчёт по безопасности](docs/security-report.md) · 📊 [Отчёт о нагрузке](docs/load-report.md)
 
 ## Стек
 FastAPI · PostgreSQL · Redpanda (Kafka API) · WireMock · Docker Compose · pytest · Playwright · Java (JUnit 5, Rest Assured, Cucumber) · k6 · GitHub Actions · Jenkins · Allure
@@ -105,3 +111,4 @@ load/        k6
 - [x] День 9: [Java-модуль](java-tests/README.md) на Maven, JUnit 5, Rest Assured, Cucumber, Allure — 28 API-тестов + 3 BDD-сценария (31 тест)
 - [x] День 10: ИИ-бот поддержки `/support/chat` (заглушка + облачный LLM) и [LLM-тесты](tests/llm/test_support_bot.py): prompt injection, утечка данных, галлюцинации, стабильность; найдены BUG-011, BUG-012
 - [x] День 11: нагрузочное тестирование переводов на [k6](load/README.md) (10/50/100 пользователей), [отчёт](docs/load-report.md): норматив p95<500мс держится до 50 VU
+- [x] День 12: CI в [GitHub Actions](.github/workflows/tests.yml) и [Jenkins](Jenkinsfile), Allure-отчёты, [итоговый отчёт о тестировании](docs/test-report.md)

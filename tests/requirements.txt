@@ -12,3 +12,5 @@ PyJWT==2.10.1
 # день 8: UI-тесты в браузере
 playwright==1.65.2
 pytest-playwright==0.10.0
+# день 12: Allure-отчёты
+allure-pytest==2.13.5
