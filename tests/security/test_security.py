@@ -11,8 +11,10 @@ import datetime as dt
 
 import jwt  # библиотека PyJWT: умеет создавать и подписывать токены
 import pytest
+import base64, json
 
 from helpers.api import ApiClient
+from conftest import PASSWORD, unique_email
 
 pytestmark = pytest.mark.security
 
@@ -49,6 +51,109 @@ def test_expired_token_rejected(user):
     # Assert
     assert r.status_code == 401
 
+def test_token_signed_with_other_secret_rejected(user):
+    token = make_token(
+        {"sub": str(user_id_of(user)), "exp": now() + dt.timedelta(minutes=5)},
+        key="hacker-secret",
+    )
+    r = ApiClient(token=token).get("/auth/me")
+    assert r.status_code == 401
+
+
+def test_token_with_alg_none_rejected(user):
+    token = make_token(
+        {"sub": str(user_id_of(user)), "exp": now() + dt.timedelta(minutes=5)},
+        key=None,
+        algorithm="none",
+    )
+    r = ApiClient(token=token).get("/auth/me")
+    assert r.status_code == 401
+
+
+def test_token_without_exp_rejected(user):
+    token = make_token({"sub": str(user_id_of(user))})  # нет поля exp
+    r = ApiClient(token=token).get("/auth/me")
+    assert r.status_code == 401
+
+
+def test_token_for_nonexistent_user_rejected():
+    token = make_token({"sub": "999999999", "exp": now() + dt.timedelta(minutes=5)})
+    r = ApiClient(token=token).get("/auth/me")
+    assert r.status_code == 401
+
+
+
+def test_tampered_payload_rejected(user):
+    # берём настоящий токен пользователя
+    real_token = user.client.session.headers["Authorization"].split(" ")[1]
+    header, payload, signature = real_token.split(".")
+    # подменяем payload на {"sub": "1"}, подпись не трогаем
+    fake_payload = base64.urlsafe_b64encode(json.dumps({"sub": "1"}).encode()).rstrip(b"=").decode()
+    tampered = f"{header}.{fake_payload}.{signature}"
+    r = ApiClient(token=tampered).get("/auth/me")
+    assert r.status_code == 401
+
+
+def test_cannot_read_foreign_account(user, recipient):
+    r = user.client.get(f"/accounts/{recipient.rub}")
+    assert r.status_code == 404
+    assert "balance" not in r.text
+
+
+def test_history_contains_only_own_operations(make_user, recipient):
+    sender = make_user(rub="5000")
+    tx_id = sender.client.transfer(sender.rub, recipient.rub, "100").json()["id"]
+    # в истории recipient эта операция есть, а в истории постороннего — нет
+    outsider = make_user()
+    ids = [t["id"] for t in outsider.client.get("/transactions").json()]
+    assert tx_id not in ids
+
+
+def test_cors_allows_web_origin(anon):
+    r = anon.get("/health", headers={"Origin": "http://localhost:8090"})
+    assert r.headers.get("access-control-allow-origin") == "http://localhost:8090"
+
+
+
+def test_cors_rejects_foreign_origin(anon):
+    r = anon.get("/health", headers={"Origin": "https://evil.example"})
+    assert "access-control-allow-origin" not in r.headers
+
+
+def test_cors_preflight_from_foreign_origin_rejected(anon):
+    r = anon.request("OPTIONS", "/transfers", headers={
+        "Origin": "https://evil.example",
+        "Access-Control-Request-Method": "POST",
+    })
+    assert "access-control-allow-origin" not in r.headers
+
+
+@pytest.mark.parametrize("payload", ["' OR 1=1--", "admin'--", '"; DROP TABLE users;--'])
+def test_sql_injection_in_login_does_not_break_api(anon, payload):
+    r = anon.login(payload, payload)
+    assert r.status_code in (401, 422)
+
+
+def test_register_ignores_extra_fields(anon):
+    email = unique_email()
+    r = anon.post("/auth/register", json={
+        "email": email, "password": "Secret123!",
+        "balance": "1000000", "is_system": True,  # лишние поля — должны игнорироваться
+    })
+    assert r.status_code == 201
+    anon.login(email, "Secret123!")
+    accounts = anon.accounts()
+    assert all(a["balance"] == "0.00" for a in accounts.values())
+
+
+
+def test_error_does_not_leak_internals(user):
+    r = user.client.post("/transfers", data="{bad json",
+                         headers={"Content-Type": "application/json"})
+    body = r.text
+    assert "Traceback" not in body
+    assert "psycopg" not in body
+    assert "SELECT" not in body
 
 # ===================== ТВОИ ЗАДАНИЯ =====================
 # Пиши по образцу выше: Arrange -> Act -> Assert. После каждого теста запускай файл.

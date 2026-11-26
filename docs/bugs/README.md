@@ -11,3 +11,4 @@
 | [BUG-005](BUG-005.md) | При переводе USD→RUB зачисляется сумма, округлённая вверх; баланс расходится с историей на 0.01 | critical | api / БД | TC-049 | New |
 | [BUG-006](BUG-006.md) | CORS отражает любой Origin и разрешает credentials | critical | api | TC-054 | New |
 | [BUG-007](BUG-007.md) | IDOR: GET /accounts/{id} возвращает чужой счёт с балансом | critical | api | TC-051 | New |
+| [BUG-008](BUG-008.md) | Слабая проверка JWT: истёкшие токены, без exp, alg=none принимаются | critical | api | TC-052, TC-053 | New |

@@ -7,3 +7,5 @@ pyotp==2.9.0
 psycopg[binary]==3.2.10
 confluent-kafka==2.16.2
 jsonschema==4.23.0
+# день 7: сборка и подпись JWT в security-тестах
+PyJWT==2.10.1
