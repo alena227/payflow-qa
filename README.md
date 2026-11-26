@@ -12,6 +12,11 @@
 FastAPI · PostgreSQL · Redpanda (Kafka API) · WireMock · Docker Compose · pytest · Playwright · Java (JUnit 5, Rest Assured, Cucumber) · k6 · GitHub Actions · Jenkins · Allure
 
 ## Архитектура
+
+![Архитектура PayFlow](docs/architecture.svg)
+
+<details><summary>Схема текстом</summary>
+
 ```
  web (nginx, :8090) ──HTTP──▶ api (FastAPI, :8000) ──SQL──▶ postgres
                                 │   │
@@ -21,6 +26,7 @@ FastAPI · PostgreSQL · Redpanda (Kafka API) · WireMock · Docker Compose · p
                                                           │  ├─▶ notifications (postgres)
                                                           │  └─▶ transactions.dlq (битые сообщения)
 ```
+</details>
 
 ## Быстрый старт
 Нужен Docker Desktop.
