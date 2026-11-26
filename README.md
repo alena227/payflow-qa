@@ -105,16 +105,3 @@ load/        k6
 ```
 Подробнее в [tests/README.md](tests/README.md).
 
-## Статус
-- [x] День 1: каркас, PostgreSQL, `/health`
-- [x] День 2: регистрация, JWT, счета, переводы с комиссией и конвертацией, лимит, WireMock (курсы, антифрод)
-- [x] День 3: Kafka (Redpanda), notifier + DLQ, 2FA, блокировка входа, CORS, веб-интерфейс, режим `BUGS=1`
-- [x] День 4: [требования](docs/requirements.md), [тест-план](docs/test-plan.md), [60 тест-кейсов](docs/test-cases.md) (+ импорт в Qase), [чек-лист безопасности](docs/checklists/security.md), [шаблон баг-репорта](docs/bugs/_template.md), ручной прогон и [баг-репорты](docs/bugs/README.md)
-- [x] День 5: [84 API-теста на pytest](tests/README.md): авторизация, 2FA, счета, комиссия, конвертация, лимиты, валидация, история
-- [x] День 6: SQL-проверки с CTE, тесты Kafka (ровно одно событие, схема, DLQ, идемпотентность), сбои внешних сервисов в WireMock; всего 112 тестов
-- [x] День 7: security-тестирование в Burp Suite (JWT, IDOR, CORS, перебор пароля), [отчёт](docs/security-report.md), 16 автотестов безопасности; найдены BUG-006 (CORS), BUG-007 (IDOR), BUG-008 (JWT)
-- [x] День 8: UI-тесты на Playwright (вход, 2FA, перевод) и мобильная эмуляция iPhone/Pixel; найдены BUG-009, BUG-010 (мобильная вёрстка)
-- [x] День 9: [Java-модуль](java-tests/README.md) на Maven, JUnit 5, Rest Assured, Cucumber, Allure — 28 API-тестов + 3 BDD-сценария (31 тест)
-- [x] День 10: ИИ-бот поддержки `/support/chat` (заглушка + облачный LLM) и [LLM-тесты](tests/llm/test_support_bot.py): prompt injection, утечка данных, галлюцинации, стабильность; найдены BUG-011, BUG-012
-- [x] День 11: нагрузочное тестирование переводов на [k6](load/README.md) (10/50/100 пользователей), [отчёт](docs/load-report.md): норматив p95<500мс держится до 50 VU
-- [x] День 12: CI в [GitHub Actions](.github/workflows/tests.yml) и [Jenkins](Jenkinsfile), Allure-отчёты, [итоговый отчёт о тестировании](docs/test-report.md)
