@@ -35,6 +35,9 @@ tests/
   db/test_integrity.py            SQL с CTE: балансы = история, комиссии, NUMERIC   (TC-024, 049, 050)
   events/test_events.py           Kafka: ровно одно событие, схема, данные, DLQ, идемпотентность (TC-043..048)
   external/test_external_services.py  WireMock: отказ/таймаут антифрода, сбои и кривые курсы (TC-037..040)
+  security/test_security.py       JWT, IDOR, CORS, инъекции, mass assignment (TC-051..054, 16 тестов)
+  ui/test_web_e2e.py              Playwright: вход, 2FA, перевод в веб-интерфейсе (TC-055..057)
+  ui/test_mobile.py               Playwright: мобильная вёрстка, эмуляция iPhone/Pixel (TC-058, 059)
   helpers/db.py                   подключение к PostgreSQL (localhost:5432)
   helpers/kafka.py                TopicWatcher: «встать в конец топика» и собрать новые сообщения
   helpers/wiremock.py             добавить/удалить заглушку через admin API

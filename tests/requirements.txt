@@ -9,3 +9,6 @@ confluent-kafka==2.16.2
 jsonschema==4.23.0
 # день 7: сборка и подпись JWT в security-тестах
 PyJWT==2.10.1
+# день 8: UI-тесты в браузере
+playwright==1.65.2
+pytest-playwright==0.10.0
