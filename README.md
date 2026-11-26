@@ -13,7 +13,7 @@ FastAPI · PostgreSQL · Redpanda (Kafka API) · WireMock · Docker Compose · p
 
 ## Архитектура
 
-![Архитектура PayFlow](docs/architecture.svg)
+![Архитектура PayFlow](docs/img/architecture.webp)
 
 <details><summary>Схема текстом</summary>
 
