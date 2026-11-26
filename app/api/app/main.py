@@ -13,6 +13,7 @@ from .events import get_producer
 from .external import ExternalServiceError
 from .flags import BUGS
 from .logging_setup import request_id_var, setup_logging
+from . import support_bot
 from .routers import accounts, auth, transfers
 
 setup_logging()
@@ -49,6 +50,7 @@ else:
 app.include_router(auth.router)
 app.include_router(accounts.router)
 app.include_router(transfers.router)
+app.include_router(support_bot.router)
 
 
 @app.middleware("http")
